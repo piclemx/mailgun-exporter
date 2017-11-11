@@ -39,8 +39,15 @@ func init() {
 	// Register the summary and the histogram with Prometheus's default registry.
 }
 
-func GetDomains(mg mailgun.Mailgun) (int, []mailgun.Domain, error) {
-	return mg.GetDomains(-1, -1)
+func GetDomains(mg mailgun.Mailgun) ([]mailgun.Domain) {
+	_ , domains , err := mg.GetDomains(-1, -1)
+
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
+
+	return domains
 }
 
 func main() {
@@ -52,19 +59,19 @@ func main() {
 		log.Fatal(error)
 	}
 
-	_ , domains , _ := GetDomains(mg)
+	domains := GetDomains(mg)
 
-	if err != nil {
-		log.Fatal(err)
+	if domains == nil {
+		log.Error("Error trying to get domains from mailgun")
 	}
 
-	log.Info("Number of domains for this account", nbDomains)
+	log.Info("Number of domains for this account", len(domains))
 
-	for index,element := range domains {
-
-		mg.GetStats()
-
-	}
+	//for index,element := range domains {
+	//
+	//	mg.GetStats()
+	//
+	//}
 
 
 	// Expose the registered metrics via HTTP.
